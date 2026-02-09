@@ -20,9 +20,10 @@ View your app in AI Studio: https://ai.studio/apps/drive/1fof7nZe0GwffMjzY9VDkti
    ```
 
 2. **Configure environment variables:**
-   - A `.env.local` file has been created with a template
-   - Edit `.env.local` and replace `your_gemini_api_key_here` with your actual Gemini API key
-   - Get your API key from: https://ai.google.dev/
+   - ✅ A `.env.local` file has been created and configured with the Gemini API key
+   - The API key is stored securely and gitignored (not committed to the repository)
+   - If you need to change the API key, edit `.env.local`
+   - Get a new API key from: https://ai.google.dev/ if needed
 
 3. **Run the development server:**
    ```bash
