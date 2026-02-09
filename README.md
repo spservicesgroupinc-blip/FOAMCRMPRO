@@ -10,11 +10,38 @@ View your app in AI Studio: https://ai.studio/apps/drive/1fof7nZe0GwffMjzY9VDkti
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
+**Prerequisites:**  Node.js (v18 or higher)
 
+### Setup Steps
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Configure environment variables:**
+   - Copy `.env.local.example` to `.env.local`
+   - Edit `.env.local` and add your Gemini API key: `GEMINI_API_KEY=your_actual_api_key_here`
+   - Get your API key from: https://ai.google.dev/
+   - The `.env.local` file is gitignored for security (will not be committed)
+
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Access the app:**
+   - Open your browser and navigate to: http://localhost:3000
+   - The app will automatically reload when you make changes to the code
+
+### Available Scripts
+
+- `npm run dev` - Start the development server on port 3000
+- `npm run build` - Build the app for production
+- `npm run preview` - Preview the production build locally
+
+### Troubleshooting
+
+- If port 3000 is already in use, the server will fail to start. Stop any processes using that port or modify the port in `vite.config.ts`
+- Make sure Node.js version is 18 or higher: `node --version`
+- If you encounter module resolution errors, try deleting `node_modules` and `package-lock.json`, then run `npm install` again
