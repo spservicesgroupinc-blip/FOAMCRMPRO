@@ -13,9 +13,9 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSave }) => {
   const { showToast } = useToast();
   const [formData, setFormData] = useState<AppSettings>(settings);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    saveSettings(formData);
+    await saveSettings(formData);
     onSave();
     showToast('Settings saved successfully', 'success');
   };
@@ -28,29 +28,29 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSave }) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (evt) => {
+      reader.onload = async (evt) => {
         const content = evt.target?.result as string;
-        if (importData(content)) {
-           showToast('Data imported successfully!', 'success');
-           onSave(); // Refresh App state
+        if (await importData(content)) {
+          showToast('Data imported successfully!', 'success');
+          onSave(); // Refresh App state
         } else {
-           showToast('Failed to import data.', 'error');
+          showToast('Failed to import data.', 'error');
         }
       };
       reader.readAsText(file);
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (confirm("Are you sure you want to log out?")) {
-      logoutUser();
+      await logoutUser();
       window.location.reload();
     }
   };
 
-  const handleClear = () => {
+  const handleClear = async () => {
     if (confirm("WARNING: This will delete all customers, estimates, and inventory. This cannot be undone. Are you sure?")) {
-      clearData();
+      await clearData();
       onSave();
       showToast('All local data cleared.', 'info');
     }
@@ -59,7 +59,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSave }) => {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <h2 className="text-2xl font-bold text-slate-900">System Settings</h2>
-      
+
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Company Profile */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
@@ -70,16 +70,16 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSave }) => {
               <input type="text" className="w-full p-2 border rounded" value={formData.companyName} onChange={e => handleChange('companyName', e.target.value)} />
             </div>
             <div>
-               <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
-               <input type="text" className="w-full p-2 border rounded" value={formData.companyPhone} onChange={e => handleChange('companyPhone', e.target.value)} />
+              <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+              <input type="text" className="w-full p-2 border rounded" value={formData.companyPhone} onChange={e => handleChange('companyPhone', e.target.value)} />
             </div>
             <div>
-               <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-               <input type="text" className="w-full p-2 border rounded" value={formData.companyEmail} onChange={e => handleChange('companyEmail', e.target.value)} />
+              <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+              <input type="text" className="w-full p-2 border rounded" value={formData.companyEmail} onChange={e => handleChange('companyEmail', e.target.value)} />
             </div>
             <div className="md:col-span-2">
-               <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
-               <input type="text" className="w-full p-2 border rounded" value={formData.companyAddress} onChange={e => handleChange('companyAddress', e.target.value)} />
+              <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
+              <input type="text" className="w-full p-2 border rounded" value={formData.companyAddress} onChange={e => handleChange('companyAddress', e.target.value)} />
             </div>
           </div>
         </div>
@@ -114,16 +114,16 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSave }) => {
         </div>
 
         {/* Financials */}
-         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
           <h3 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Financial Defaults</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-               <label className="block text-sm font-medium text-slate-700 mb-1">Default Labor Rate ($/hr)</label>
-               <input type="number" className="w-full p-2 border rounded" value={formData.laborRate} onChange={e => handleChange('laborRate', Number(e.target.value))} />
+              <label className="block text-sm font-medium text-slate-700 mb-1">Default Labor Rate ($/hr)</label>
+              <input type="number" className="w-full p-2 border rounded" value={formData.laborRate} onChange={e => handleChange('laborRate', Number(e.target.value))} />
             </div>
-             <div>
-               <label className="block text-sm font-medium text-slate-700 mb-1">Tax Rate (%)</label>
-               <input type="number" step="0.1" className="w-full p-2 border rounded" value={formData.taxRate} onChange={e => handleChange('taxRate', Number(e.target.value))} />
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Tax Rate (%)</label>
+              <input type="number" step="0.1" className="w-full p-2 border rounded" value={formData.taxRate} onChange={e => handleChange('taxRate', Number(e.target.value))} />
             </div>
           </div>
         </div>
@@ -139,22 +139,22 @@ const Settings: React.FC<SettingsProps> = ({ settings, onSave }) => {
       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
         <h3 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Data Management</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-           <button onClick={exportData} className="flex items-center justify-center gap-2 p-3 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
-             <Download className="w-4 h-4" /> Export Data (JSON)
-           </button>
-           <label className="flex items-center justify-center gap-2 p-3 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer">
-             <Upload className="w-4 h-4" /> Import Data
-             <input type="file" accept=".json" className="hidden" onChange={handleImport} />
-           </label>
-           <button onClick={handleClear} className="flex items-center justify-center gap-2 p-3 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
-             <Trash2 className="w-4 h-4" /> Clear Local Data
-           </button>
+          <button onClick={exportData} className="flex items-center justify-center gap-2 p-3 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+            <Download className="w-4 h-4" /> Export Data (JSON)
+          </button>
+          <label className="flex items-center justify-center gap-2 p-3 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer">
+            <Upload className="w-4 h-4" /> Import Data
+            <input type="file" accept=".json" className="hidden" onChange={handleImport} />
+          </label>
+          <button onClick={handleClear} className="flex items-center justify-center gap-2 p-3 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+            <Trash2 className="w-4 h-4" /> Clear Local Data
+          </button>
         </div>
       </div>
-      
+
       <div className="flex justify-center pt-8">
         <button onClick={handleLogout} className="flex items-center gap-2 text-slate-500 hover:text-red-600">
-           <LogOut className="w-4 h-4" /> Sign Out
+          <LogOut className="w-4 h-4" /> Sign Out
         </button>
       </div>
     </div>

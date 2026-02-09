@@ -17,7 +17,7 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
   // --- State ---
   const [activeTab, setActiveTab] = useState<'building' | 'walls' | 'flat'>('building');
   const [showPricing, setShowPricing] = useState(true);
-  
+
   // Job Info
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
   const [jobName, setJobName] = useState('');
@@ -27,21 +27,21 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
   // Add Customer Modal State
   const [showAddCustomer, setShowAddCustomer] = useState(false);
   const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', email: '', address: '' });
-  
+
   // Dimensions
   const [length, setLength] = useState(0);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(8);
   const [pitch, setPitch] = useState(0);
   const [isGable, setIsGable] = useState(true);
-  
+
   // Foam Specs
   const [wallFoamType, setWallFoamType] = useState<FoamType>(FoamType.OPEN_CELL);
   const [wallThickness, setWallThickness] = useState(3.5);
   const [roofFoamType, setRoofFoamType] = useState<FoamType>(FoamType.OPEN_CELL);
   const [roofThickness, setRoofThickness] = useState(5.5);
   const [wastePct, setWastePct] = useState(10);
-  
+
   // Pricing
   const [laborHours, setLaborHours] = useState(0);
   const [tripCharge, setTripCharge] = useState(0);
@@ -71,16 +71,16 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
     if (activeTab === 'building') {
       // Simple Box Model
       wArea = (length + width) * 2 * height;
-      
+
       // Roof with pitch
       const pitchFactor = Math.sqrt(Math.pow(12, 2) + Math.pow(pitch, 2)) / 12;
       const flatRoofArea = length * width;
       rArea = flatRoofArea * pitchFactor;
 
       if (isGable) {
-         const rise = (pitch / 12) * (width / 2);
-         const oneGableArea = 0.5 * width * rise;
-         wArea += (oneGableArea * 2); 
+        const rise = (pitch / 12) * (width / 2);
+        const oneGableArea = 0.5 * width * rise;
+        wArea += (oneGableArea * 2);
       }
     } else if (activeTab === 'walls') {
       wArea = length * height; // Here Length is linear footage
@@ -93,7 +93,7 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
     // 2. Board Feet & Sets
     const wBF = wArea * wallThickness;
     const rBF = rArea * roofThickness;
-    
+
     // Add waste
     const wasteMult = 1 + (wastePct / 100);
     const totalWBF = wBF * wasteMult;
@@ -182,7 +182,7 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
     }
   };
 
-  const saveNewCustomer = () => {
+  const saveNewCustomer = async () => {
     if (!newCustomer.name) {
       showToast("Name is required", "error");
       return;
@@ -199,7 +199,7 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
       zip: '',
       createdAt: new Date().toISOString()
     };
-    saveCustomer(customer);
+    await saveCustomer(customer);
     onRefresh(); // Reload data in App
     setSelectedCustomerId(id); // Select the new customer
     setShowAddCustomer(false);
@@ -207,7 +207,7 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
     showToast("Customer created & selected", "success");
   };
 
-  const handleSave = (status: JobStatus) => {
+  const handleSave = async (status: JobStatus) => {
     if (!selectedCustomerId) {
       showToast("Please select a customer first", "error");
       return;
@@ -240,8 +240,8 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
       tax: results.tax,
       total: results.total
     };
-    
-    saveEstimate(newEstimate);
+
+    await saveEstimate(newEstimate);
     showToast(status === JobStatus.DRAFT ? "Draft Saved" : "Work Order Created", "success");
     onSave();
   };
@@ -267,7 +267,7 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-20 relative">
-      
+
       {/* --- Add Customer Modal Overlay --- */}
       {showAddCustomer && (
         <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
@@ -284,51 +284,51 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Full Name *</label>
-                <input 
+                <input
                   autoFocus
-                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none" 
-                  value={newCustomer.name} 
-                  onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none"
+                  value={newCustomer.name}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
                   placeholder="John Doe"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
-                <input 
+                <input
                   type="tel"
-                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none" 
-                  value={newCustomer.phone} 
-                  onChange={(e) => setNewCustomer({...newCustomer, phone: e.target.value})}
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none"
+                  value={newCustomer.phone}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
                   placeholder="(555) 123-4567"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                <input 
+                <input
                   type="email"
-                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none" 
-                  value={newCustomer.email} 
-                  onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})}
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none"
+                  value={newCustomer.email}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
                   placeholder="john@example.com"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
-                <input 
-                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none" 
-                  value={newCustomer.address} 
-                  onChange={(e) => setNewCustomer({...newCustomer, address: e.target.value})}
+                <input
+                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none"
+                  value={newCustomer.address}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, address: e.target.value })}
                   placeholder="123 Main St"
                 />
               </div>
               <div className="pt-4 flex gap-3">
-                <button 
+                <button
                   onClick={() => setShowAddCustomer(false)}
                   className="flex-1 py-2 text-slate-600 font-medium hover:bg-slate-50 rounded-lg border border-slate-200"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   onClick={saveNewCustomer}
                   className="flex-1 py-2 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 shadow-lg shadow-brand-900/20"
                 >
@@ -343,14 +343,14 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-slate-900">Estimator</h2>
         <div className="flex gap-2">
-           <button 
-             onClick={() => setShowPricing(!showPricing)} 
-             className="p-2 text-slate-600 hover:bg-slate-100 rounded flex items-center gap-1 border border-slate-200"
-             title="Toggle Pricing"
-           >
-             {showPricing ? <EyeOff className="w-5 h-5"/> : <Eye className="w-5 h-5"/>}
-             <span className="text-sm hidden md:inline">{showPricing ? 'Hide Prices' : 'Show Prices'}</span>
-           </button>
+          <button
+            onClick={() => setShowPricing(!showPricing)}
+            className="p-2 text-slate-600 hover:bg-slate-100 rounded flex items-center gap-1 border border-slate-200"
+            title="Toggle Pricing"
+          >
+            {showPricing ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            <span className="text-sm hidden md:inline">{showPricing ? 'Hide Prices' : 'Show Prices'}</span>
+          </button>
           <button onClick={() => {
             setLength(0); setWidth(0); setMiscItems([]); setImages([]); setLocation(undefined);
             showToast("Estimator Reset", "info");
@@ -363,19 +363,19 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Inputs */}
         <div className="lg:col-span-2 space-y-6">
-          
+
           {/* Customer & Job Info */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
             <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="bg-brand-100 text-brand-700 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold">1</span> 
+              <span className="bg-brand-100 text-brand-700 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold">1</span>
               Job Details
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Customer</label>
                 <div className="relative">
-                  <select 
+                  <select
                     className="w-full rounded-lg border-slate-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 p-2 border bg-white appearance-none"
                     value={selectedCustomerId}
                     onChange={handleCustomerChange}
@@ -396,39 +396,39 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Job Name</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   className="w-full rounded-lg border-slate-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 p-2 border"
                   placeholder="e.g. Smith Residence Attic"
                   value={jobName}
                   onChange={(e) => setJobName(e.target.value)}
                 />
               </div>
-              
+
               {/* Site Data */}
               <div className="md:col-span-2 flex flex-col md:flex-row gap-4 mt-2">
-                 <button 
-                   onClick={handleGPS}
-                   className={`flex-1 flex items-center justify-center gap-2 py-3 border rounded-lg hover:bg-slate-50 transition-colors font-medium text-sm ${location ? 'text-green-700 border-green-200 bg-green-50' : 'text-slate-600 border-slate-200'}`}
-                 >
-                   <MapPin className="w-4 h-4" />
-                   {location ? `GPS Captured (${location.accuracy?.toFixed(0)}m acc)` : 'Capture GPS Location'}
-                   {location && <Check className="w-4 h-4 ml-1" />}
-                 </button>
-                 <label className="flex-1 flex items-center justify-center gap-2 py-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer text-slate-600 font-medium text-sm">
-                    <Camera className="w-4 h-4" />
-                    Upload Site Photo
-                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                 </label>
+                <button
+                  onClick={handleGPS}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 border rounded-lg hover:bg-slate-50 transition-colors font-medium text-sm ${location ? 'text-green-700 border-green-200 bg-green-50' : 'text-slate-600 border-slate-200'}`}
+                >
+                  <MapPin className="w-4 h-4" />
+                  {location ? `GPS Captured (${location.accuracy?.toFixed(0)}m acc)` : 'Capture GPS Location'}
+                  {location && <Check className="w-4 h-4 ml-1" />}
+                </button>
+                <label className="flex-1 flex items-center justify-center gap-2 py-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer text-slate-600 font-medium text-sm">
+                  <Camera className="w-4 h-4" />
+                  Upload Site Photo
+                  <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                </label>
               </div>
-              
+
               {/* Image Preview */}
               {images.length > 0 && (
                 <div className="md:col-span-2 flex gap-2 overflow-x-auto py-2">
                   {images.map((img, idx) => (
                     <div key={idx} className="relative flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-slate-200 shadow-sm group">
                       <img src={img} alt="Job site" className="w-full h-full object-cover" />
-                      <button 
+                      <button
                         onClick={() => removeImage(idx)}
                         className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
                       >
@@ -445,24 +445,24 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1 h-full bg-slate-200"></div>
             <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="bg-slate-100 text-slate-600 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold">2</span> 
+              <span className="bg-slate-100 text-slate-600 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold">2</span>
               Dimensions
             </h3>
-            
+
             <div className="flex bg-slate-100 p-1 rounded-lg mb-6 inline-flex">
-              <button 
+              <button
                 onClick={() => setActiveTab('building')}
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'building' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
               >
                 Full Building
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('walls')}
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'walls' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
               >
                 Walls Only
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('flat')}
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'flat' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
               >
@@ -476,12 +476,12 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
                 <input type="number" className="w-full p-2 border rounded focus:ring-2 focus:ring-brand-500 outline-none" value={length} onChange={(e) => setLength(Number(e.target.value))} />
               </div>
               <div>
-                 <label className="block text-xs uppercase text-slate-500 font-bold mb-1">
-                   {activeTab === 'walls' ? 'Height (ft)' : 'Width (ft)'}
-                 </label>
+                <label className="block text-xs uppercase text-slate-500 font-bold mb-1">
+                  {activeTab === 'walls' ? 'Height (ft)' : 'Width (ft)'}
+                </label>
                 <input type="number" className="w-full p-2 border rounded focus:ring-2 focus:ring-brand-500 outline-none" value={width} onChange={(e) => setWidth(Number(e.target.value))} />
               </div>
-              
+
               {activeTab === 'building' && (
                 <>
                   <div>
@@ -495,7 +495,7 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
                 </>
               )}
             </div>
-            
+
             {activeTab === 'building' && (
               <div className="mt-4">
                 <label className="inline-flex items-center cursor-pointer">
@@ -508,12 +508,12 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
 
           {/* Foam Specs */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden">
-             <div className="absolute top-0 left-0 w-1 h-full bg-slate-200"></div>
+            <div className="absolute top-0 left-0 w-1 h-full bg-slate-200"></div>
             <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="bg-slate-100 text-slate-600 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold">3</span> 
+              <span className="bg-slate-100 text-slate-600 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold">3</span>
               Foam Specification
             </h3>
-            
+
             <div className="space-y-4">
               {(activeTab === 'building' || activeTab === 'walls') && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-b pb-4 border-slate-100">
@@ -548,22 +548,22 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
                   </div>
                 </div>
               )}
-              
+
               <div className="pt-2">
-                 <div className="flex justify-between mb-1">
-                   <label className="text-xs uppercase text-slate-500 font-bold">Waste Factor</label>
-                   <span className="text-xs font-bold text-brand-600">{wastePct}%</span>
-                 </div>
-                 <input type="range" min="0" max="30" className="w-full accent-brand-600 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer" value={wastePct} onChange={(e) => setWastePct(Number(e.target.value))} />
+                <div className="flex justify-between mb-1">
+                  <label className="text-xs uppercase text-slate-500 font-bold">Waste Factor</label>
+                  <span className="text-xs font-bold text-brand-600">{wastePct}%</span>
+                </div>
+                <input type="range" min="0" max="30" className="w-full accent-brand-600 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer" value={wastePct} onChange={(e) => setWastePct(Number(e.target.value))} />
               </div>
             </div>
           </div>
 
           {/* Pricing Add-ons */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden">
-             <div className="absolute top-0 left-0 w-1 h-full bg-slate-200"></div>
-             <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="bg-slate-100 text-slate-600 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold">4</span> 
+            <div className="absolute top-0 left-0 w-1 h-full bg-slate-200"></div>
+            <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
+              <span className="bg-slate-100 text-slate-600 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold">4</span>
               Pricing & Extras
             </h3>
             <div className="grid grid-cols-2 gap-4 mb-4">
@@ -581,26 +581,26 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
               <label className="block text-xs font-bold text-slate-500">Additional Line Items</label>
               {miscItems.map((item, idx) => (
                 <div key={item.id} className="flex gap-2 items-center">
-                   <input 
-                      className="flex-grow p-2 border rounded text-sm" 
-                      placeholder="Description" 
-                      value={item.description} 
-                      onChange={(e) => updateMiscItem(idx, 'description', e.target.value)} 
-                    />
-                    <input 
-                      type="number" 
-                      className="w-20 p-2 border rounded text-sm" 
-                      placeholder="Price" 
-                      value={item.unitPrice} 
-                      onChange={(e) => updateMiscItem(idx, 'unitPrice', Number(e.target.value))} 
-                    />
-                    <button onClick={() => {
-                      const newItems = [...miscItems];
-                      newItems.splice(idx, 1);
-                      setMiscItems(newItems);
-                    }} className="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded">
-                      <X className="w-4 h-4"/>
-                    </button>
+                  <input
+                    className="flex-grow p-2 border rounded text-sm"
+                    placeholder="Description"
+                    value={item.description}
+                    onChange={(e) => updateMiscItem(idx, 'description', e.target.value)}
+                  />
+                  <input
+                    type="number"
+                    className="w-20 p-2 border rounded text-sm"
+                    placeholder="Price"
+                    value={item.unitPrice}
+                    onChange={(e) => updateMiscItem(idx, 'unitPrice', Number(e.target.value))}
+                  />
+                  <button onClick={() => {
+                    const newItems = [...miscItems];
+                    newItems.splice(idx, 1);
+                    setMiscItems(newItems);
+                  }} className="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded">
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
               ))}
               <button onClick={addMiscItem} className="text-sm text-brand-600 hover:bg-brand-50 px-3 py-2 rounded flex items-center gap-1 mt-2 border border-dashed border-brand-200 w-full justify-center">
@@ -627,7 +627,7 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
                 <span>{results.roofArea.toFixed(0)} sq ft</span>
               </div>
               <div className="border-t border-slate-700 pt-2"></div>
-               <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm">
                 <span>Open Cell Sets</span>
                 <span className="text-brand-400 font-mono">{results.setsOpen.toFixed(2)}</span>
               </div>
@@ -641,36 +641,36 @@ const Calculator: React.FC<CalculatorProps> = ({ settings, customers, onSave, on
               <div className="bg-slate-800 rounded-lg p-4 space-y-2 mb-6 animate-in fade-in zoom-in-95 duration-200 border border-slate-700">
                 <div className="flex justify-between text-sm">
                   <span>Materials</span>
-                  <span>${results.materialCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                  <span>${results.materialCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
-                 <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-sm">
                   <span>Labor</span>
-                  <span>${results.laborCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                  <span>${results.laborCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Extras/Fees</span>
-                  <span>${(tripCharge + miscItems.reduce((a,b) => a + b.total, 0)).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                  <span>${(tripCharge + miscItems.reduce((a, b) => a + b.total, 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between text-sm text-slate-400">
                   <span>Tax ({settings.taxRate}%)</span>
-                  <span>${results.tax.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                  <span>${results.tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
                 <div className="border-t border-slate-600 pt-2 mt-2 flex justify-between font-bold text-xl text-white">
                   <span>Total</span>
-                  <span>${results.total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                  <span>${results.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
               </div>
             )}
 
             <div className="space-y-3">
-              <button 
+              <button
                 onClick={() => handleSave(JobStatus.DRAFT)}
                 className="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors flex justify-center items-center gap-2"
               >
                 <Save className="w-4 h-4" /> Save as Draft
               </button>
-              <button 
-                 onClick={() => handleSave(JobStatus.WORK_ORDER)}
+              <button
+                onClick={() => handleSave(JobStatus.WORK_ORDER)}
                 className="w-full py-3 bg-brand-600 hover:bg-brand-700 rounded-lg font-medium transition-colors text-white shadow-lg shadow-brand-900/50"
               >
                 Create Work Order
