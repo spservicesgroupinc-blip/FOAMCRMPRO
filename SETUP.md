@@ -19,7 +19,7 @@ This document confirms the local development environment has been set up success
 ### 3. Development Server ✓
 - Successfully started Vite development server
 - Server running on: http://localhost:3000
-- Network access available on: http://10.1.0.29:3000
+- Network access available on your local network (Vite will display the URL)
 - Hot Module Replacement (HMR) enabled for live updates
 
 ### 4. Documentation Updated ✓
