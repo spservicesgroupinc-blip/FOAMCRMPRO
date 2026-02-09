@@ -12,7 +12,7 @@ This document confirms the local development environment has been set up success
 ### 2. Environment Configuration ✓
 - Created `.env.local` file with required environment variables
 - Template includes:
-  - `GEMINI_API_KEY` ✅ **CONFIGURED** - API key is set and ready to use
+  - `GEMINI_API_KEY` (needs to be configured with your actual API key)
   - `DATABASE_URL` (optional, uses localStorage if not provided)
   - `VITE_DATABASE_URL` (optional, for Vite to access the database URL)
 
@@ -39,9 +39,15 @@ Open your browser and navigate to: http://localhost:3000
 
 ### Configuration Required
 
-✅ **API Key Configured**: The `.env.local` file has been configured with a valid Gemini API key. The application is ready to use AI features.
+Before first use, configure your environment variables:
+```bash
+cp .env.local.example .env.local
+# Edit .env.local and add your actual Gemini API key
+```
 
-**Note**: The API key is stored in `.env.local` which is gitignored for security. It will not be committed to the repository.
+Get your API key from: https://ai.google.dev/
+
+**Note**: The `.env.local` file is gitignored for security and will not be committed to the repository. Each developer must create their own.
 
 ## Verification
 
